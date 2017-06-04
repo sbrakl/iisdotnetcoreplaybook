@@ -1,0 +1,36 @@
+---
+- name: "Create App pool for dotnet core"
+  win_iis_webapppool:
+    name: dotnetcoreAppPool
+    attributes: 'managedRuntimeVersion:'
+    state: started
+  register: coreapppool
+
+- name: "Create physical folder for deployment where zip are place"
+  win_file:
+    path: C:\publishzips
+    state: directory
+
+- name: "Create physical folder for IIS"
+  win_file: 
+    path: C:\inetpub\wwwroot\firstaspnetcore
+    state: directory
+
+- name: "Create dot net core website"
+  win_iis_webapplication: 
+    name: firstaspnetcore
+    physical_path: C:\inetpub\wwwroot\firstaspnetcore
+    state: present
+    site: Default Web Site
+    application_pool: dotnetcoreAppPool
+    
+- name: "Set permission on the website"
+  win_acl:
+    path: C:\inetpub\wwwroot\firstaspnetcore
+    user: IIS AppPool\dotnetcoreAppPool
+    rights: FullControl
+    type: allow
+    state: present
+    inherit: ContainerInherit, ObjectInherit
+    propagation: 'None'
+

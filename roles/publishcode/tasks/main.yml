@@ -1,0 +1,24 @@
+---
+- name: "Stop IIS Pool"
+  win_iis_webapppool:
+    name: dotnetcoreAppPool
+    state: stopped
+
+- name: "Publishing code to web folder"
+  win_copy: 
+    src: testaspnetcore.zip 
+    dest: C:\publishzips
+
+- name: "Unzipping publish code"
+  win_shell: unzip -u C:\publishzips\testaspnetcore.zip -d C:\inetpub\wwwroot\firstaspnetcore\
+
+- name: "Create physical folder for logs if not exists"
+  win_file:
+    path: C:\inetpub\wwwroot\firstaspnetcore\logs
+    state: directory  
+  
+- name: "Start IIS Pool"
+  win_iis_webapppool:
+    name: dotnetcoreAppPool
+    state: started
+

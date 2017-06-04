@@ -1,0 +1,15 @@
+---
+- hosts: windows2
+  tasks: 
+    - name: "test command for powershell version"
+      win_shell: (Get-Host).Version.Major
+      register: get_host
+
+    - name: "Print host information"
+      debug:
+        var: get_host
+
+    - name: "Print this message when powershell version is 5"
+      debug:
+        msg: "Hey, you have got Powershell 5"
+      when: get_host.stdout.find("5") != -1

@@ -1,0 +1,12 @@
+---  
+- name: check if Win7AndW2K8R2-KB3134760-x64.msu hotfix has been applied
+  win_shell: Get-Hotfix -Id KB3134760
+  register: hotfix_status
+  ignore_errors: true
+
+- name: show hotfix status
+  debug:
+    var: hotfix_status
+
+- include: installps.yml
+  when: "hotfix_status.rc != 0"

@@ -1,0 +1,5 @@
+---
+- name: "Install 7-zip"
+  win_chocolatey:
+    name: unzip
+    state: present

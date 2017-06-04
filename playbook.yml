@@ -1,0 +1,9 @@
+---
+- hosts: windows2
+  roles:
+    - powershell5
+    - initprep
+    - iis
+    - dotnetcore
+    - setupwebsite
+    - publishcode

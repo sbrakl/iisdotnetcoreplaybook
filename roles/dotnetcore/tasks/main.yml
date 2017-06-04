@@ -1,0 +1,33 @@
+#This will check, if dotnet core windows hosting is installed or not"
+- name: "check if aspnetcore.dll exist"
+  win_stat:
+    path: 'C:\Windows\System32\inetsrv\aspnetcore.dll'
+  register: aspnetcoredll_info
+
+- name: "download dotnet core server hosting"
+  win_get_url:
+    url: http://download.microsoft.com/download/3/8/1/381CBBF3-36DA-4983-BFF3-5881548A70BE/DotNetCore.1.0.4_1.1.1-WindowsHosting.exe
+    dest: C:\Installers\DotNetCore.1.0.4_1.1.1-WindowsHosting.exe
+  when: aspnetcoredll_info.stat.exists == False
+
+- name: "install dotnet core server hosting"
+  win_command: 'C:\Installers\DotNetCore.1.0.4_1.1.1-WindowsHosting.exe /quiet /install'
+  when: aspnetcoredll_info.stat.exists == False
+
+- name: "Display message"
+  debug:
+    msg: "dotnetcore will need IIS  restart..."  
+  when: aspnetcoredll_info.stat.exists == False
+ 
+- name: "Wait for machine to reboot for 5 mins"
+  win_command: iisreset
+  when: aspnetcoredll_info.stat.exists == False
+  
+- name: "check version of the aspnetcore.dll exist"
+  win_file_version:
+    path: 'C:\Windows\System32\inetsrv\aspnetcore.dll'
+  register: aspnetcoredll_version
+
+- name: "prints aspnetcore.dll version"
+  debug:
+    msg: "{{aspnetcoredll_version.win_file_version.file_version}}"

@@ -1,0 +1,37 @@
+---
+- name: "Create installation folder"
+  win_file: 
+    path: C:\Installers
+    state: directory
+
+- name: "Copy msu file"
+  win_copy:
+    src: "Win7AndW2K8R2-KB3134760-x64.msu"
+    dest: C:\Installers\ 
+
+# Unfortunately you can't use wusa directly to install windows updates.
+# see https://support.microsoft.com/en-us/kb/2773898 for details
+# you have to unpack the update file and then use dism.exe to install the cab
+
+- name: unpack the hotfix if needed
+  win_command: 'wusa C:\Installers\Win7AndW2K8R2-KB3134760-x64.msu /extract:C:\Installers\archive'
+
+  # This task will cause restart, which will cause task to fail
+- name: use dism to install the cab containing the hotfix
+  win_command: 'dism.exe /online /add-package /PackagePath:C:\Installers\archive\Windows6.1-KB3134760-x64.cab /Quiet'
+  ignore_errors: true
+  register: restart_status
+  
+  #https://msdn.microsoft.com/en-us/library/windows/desktop/aa376931(v=vs.85).aspx
+- name: "Display message"
+  debug:
+    msg: "Powershell will successfully installed after reboot. If rc status is 3010, it all good. Waiting for restart..."
+
+- name: "Display variable"
+  debug:
+    var: restart_status
+    
+- name: "Wait for machine to reboot for 5 mins"
+  wait_for_connection:
+    delay: 60
+    timeout: 300
